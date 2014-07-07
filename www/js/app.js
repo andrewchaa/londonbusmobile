@@ -5,38 +5,101 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic'])
 
-.controller('starterCtrl', function ($scope, $ionicModal) {
-    // $scope.tasks = [
-    //   { title: 'Collect coins' },
-    //   { title: 'Eat mushrooms' },
-    //   { title: 'Get high enough to grab the flag' },
-    //   { title: 'Find the Princess' }
-    // ];
-    $scope.tasks = [];
+.factory('Projects', function () {
+  return {
+    all : function () {
+      var projectsString = window.localStorage['projects'];
+      if (projectsString)
+        return angular.fromJson(projectsString);
 
-    $ionicModal.fromTemplateUrl(
-      'new-task.html', 
-      function (modal) {
-        $scope.taskModal = modal;
-      }, {
-        scope : $scope,
-        animation : 'slide-in-up'
-      }
-    );
+      return [];
+    },
 
-    $scope.createTask = function (task) {
-      $scope.tasks.push({ title : task.title });
-      $scope.taskModal.hide();
-      task.title = '';
-    };
+    save : function (projects) {
+      window.localStorage['projects'] = angular.toJson(projects);
+    },
 
-    $scope.newTask = function () {
-      $scope.taskModal.show();
-    };
+    newProject : function (title) {
+      return {
+        title : title,
+        tasks : []
+      };
+    },
 
-    $scope.closeNewTask = function () {
-      $scope.taskModal.hide();
+    getLastActiveIndex : function () {
+      return parseInt(window.localStorage['lastActiveProject']);
+    },
+
+    setLastActiveIndex : function (index) {
+      window.localStorage['lastActiveProject'] = index;
     }
+  };
+})
+
+.controller('starterCtrl', function ($scope, $timeout, $ionicModal, Projects, $ionicSideMenuDelegate) {
+
+  var createProject = function (title) {
+    var newProject = Projects.newProject(title);
+    $scope.projects.push(newProject);
+
+    Projects.save($scope.projects);
+    $scope.selectProject(newProject, $scope.projects.length - 1);
+  };
+
+  $scope.projects = Projects.all();
+  $scope.activeProject = $scope.projects[Projects.getLastActiveIndex()];
+  $scope.newProject = function () {
+    var title = prompt('Project Name');
+    if (title)
+      createProject(title);
+  }
+
+  $scope.selectProject = function (project, index) {
+    $scope.activeProject = project;
+    Projects.setLastActiveIndex(index);
+    $ionicSideMenuDelegate.toggleLeft(false);
+  };
+
+  // $scope.tasks = [];
+
+  $ionicModal.fromTemplateUrl(
+    'new-task.html', 
+    function (modal) {
+      $scope.taskModal = modal;
+    }, {
+      scope : $scope,
+      animation : 'slide-in-up'
+    }
+  );
+
+  $scope.createTask = function (task) {
+    if (!$scope.activeProject || !task)
+      return;
+
+    $scope.activeProject.tasks.push({ title : task.title });
+    $scope.taskModal.hide();
+
+    Projects.save($scope.projects);
+    task.title = '';
+  };
+
+  $scope.newTask = function () {
+    $scope.taskModal.show();
+  };
+
+  $scope.closeNewTask = function () {
+    $scope.taskModal.hide();
+  }
+
+  $timeout(function () {
+    if ($scope.projects.length == 0) {
+      while(true) {
+        var title = prompt('Your first project title');
+        createProject(title);
+        break;
+      }
+    }
+  })
 })
 
 .run(function($ionicPlatform) {

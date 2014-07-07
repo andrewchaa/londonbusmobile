@@ -28,7 +28,10 @@
       <!-- Center content -->
       <ion-side-menu-content>
         <ion-header-bar class="bar-dark">
-          <h1 class="title">Todo</h1>
+          <button class="button button-icon" ng-click="toggleProject()">
+            <i class="icon ion-navigation"></i>
+          </button>
+          <h1 class="title">{{ activeProject.title }}</h1>
 
           <button class="button button-icon" ng-click="newTask()">
             <i class="icon ion-compose"></i>
@@ -36,9 +39,7 @@
         </ion-header-bar>
         <ion-content>
           <ion-list>
-            <ion-item ng-repeat="task in tasks">
-              {{ task.title }}
-            </ion-item>
+            <ion-item ng-repeat="task in activeProject.tasks">{{ task.title }}</ion-item>
           </ion-list>
         </ion-content>
       </ion-side-menu-content>
@@ -47,7 +48,16 @@
       <ion-side-menu side="left">
         <ion-header-bar class="bar-dark">
           <h1 class="title">Projects</h1>
+          <button class="button button-icon ion-plus" ng-click="newProject()"></button>
         </ion-header-bar>
+        <ion-content>
+          <ion-list>
+            <ion-item ng-repeat="project in projects" ng-click="selectProject(project, $index)"
+                      ng-active="activeProject == project">
+              {{ project.title }}
+            </ion-item>
+          </ion-list>
+        </ion-content>
       </ion-side-menu>
 
     </ion-side-menus>
