@@ -31,17 +31,15 @@
           <button class="button button-icon" ng-click="toggleProject()">
             <i class="icon ion-navigation"></i>
           </button>
-          <h1 class="title">{{ activeProject.title }}</h1>
+          <h1 class="title">London Bus</h1>
 
-          <button class="button button-icon" ng-click="newTask()">
-            <i class="icon ion-compose"></i>
-          </button>
         </ion-header-bar>
         <ion-content>
           <ion-list>
             <ion-item ng-repeat="task in activeProject.tasks">{{ task.title }}</ion-item>
           </ion-list>
         </ion-content>
+
       </ion-side-menu-content>
 
       <!-- Left menu -->
@@ -91,6 +89,10 @@
       </div>
 
     </script>
+
+    <div class="tabs tabs-icon-top">
+      <a class="tab-item"><i class="icon ion-home"></i>Home</a>
+    </div>
 
   </body>
 </html>
