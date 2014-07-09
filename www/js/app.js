@@ -48,6 +48,12 @@ angular.module('starter', ['ionic'])
 
   $scope.projects = Projects.all();
   $scope.activeProject = $scope.projects[Projects.getLastActiveIndex()];
+  
+  $scope.stopsNearMe = function() {
+    console.log('test');
+
+  };
+
   $scope.newProject = function () {
     var title = prompt('Project Name');
     if (title)
