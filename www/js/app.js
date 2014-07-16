@@ -36,7 +36,13 @@ angular.module('starter', ['ionic'])
   };
 })
 
-.controller('starterCtrl', function ($scope, $timeout, $ionicModal, Projects, $ionicSideMenuDelegate) {
+.controller('starterCtrl', function (
+    $scope
+  , $timeout
+  , $ionicModal
+  , Projects
+  , $ionicSideMenuDelegate
+  , $http) {
 
   var createProject = function (title) {
     var newProject = Projects.newProject(title);
@@ -50,8 +56,33 @@ angular.module('starter', ['ionic'])
   $scope.activeProject = $scope.projects[Projects.getLastActiveIndex()];
   
   $scope.stopsNearMe = function() {
-    console.log('test');
+    var url = '/data/stopsnearme.json';
+    if (window.cordova) {
+      url = 'http://countdown.tfl.gov.uk/search?searchTerm=91&_dc=1405030266331';  
+    }
+    
+    $http({ method : 'GET', url : url })
+      .success(function (data, status, headers, config) {
+        data.markers.map(function (marker) {
+          var stopIndicator = marker.stopIndicator;
+          if (stopIndicator) {
+            marker.stopIndicatorText = '[' + stopIndicator + ']';
+            
+            if (stopIndicator.length > 1) {
+              marker.stopIndicatorImgSrc = '0.jpg';  
+            } else {
+              marker.stopIndicatorImgSrc = stopIndicator + '0.jpg'
+            }
+            
+          } else {
+            marker.stopIndicatorImgSrc = '0.jpg'
+          }
 
+
+        });
+        $scope.stops = data.markers;
+        console.log(data.markers[0])
+      })
   };
 
   $scope.newProject = function () {
@@ -65,8 +96,6 @@ angular.module('starter', ['ionic'])
     Projects.setLastActiveIndex(index);
     $ionicSideMenuDelegate.toggleLeft(false);
   };
-
-  // $scope.tasks = [];
 
   $ionicModal.fromTemplateUrl(
     'new-task.html', 
